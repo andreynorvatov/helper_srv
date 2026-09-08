@@ -20,6 +20,12 @@ jobs:
         run: |
           ssh-keyscan -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
+      # - name: Clean server directory (keep .env only)
+      #   run: |
+      #     ssh -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+      #       "cd ${{ secrets.DEPLOY_PATH }} && \
+      #        find . -maxdepth 1 ! -name '.env' ! -name '.' -exec rm -rf {} +"
+
       - name: Rsync code to server
         run: |
           rsync -avz --delete --exclude '.git' --exclude '.github' \
