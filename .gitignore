@@ -1,0 +1,167 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.env/
+.env.local
+.env.*.local
+*.venv
+virtualenv/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.template
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+*.cover
+*.log
+*.pid
+*.seed
+*.pid.lock
+*.db
+*.sqlite
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype
+.pytype/
+
+# Profiling
+*.prof
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+db.sqlite3
+
+# Logs
+logs/
+*.log
+logfile*
+
+# Uploads/Media
+media/
+uploads/
+static/uploads/
+
+# Docker
+.docker/
+docker-compose.override.yml
+*.dockerignore
+
+# CI/CD
+*.yml.bak
+*.yaml.bak
+
+# Secrets
+secrets/
+*.secret
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# Temp files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# OS
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Alembic
+alembic/versions/*.pyc
+
+# Poetry
+poetry.lock
+.poetry/
+
+# PDM
+.pdm.toml
+__pypackages__/
+
+# Ruff
+.ruff_cache/
+
+# Project specific
+helper.tar
+*.tar
+*.gz
+*.zip
+*.rar
+*.7z
