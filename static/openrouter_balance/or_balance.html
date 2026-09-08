@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenRouter Balance</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card-bg: #161b22;
+      --card-border: #30363d;
+      --text: #e1e4e8;
+      --text-muted: #8b949e;
+      --text-dim: #484f58;
+      --divider: #21262d;
+      --btn-bg: #21262d;
+      --btn-border: #30363d;
+      --btn-text: #c9d1d9;
+      --btn-hover: #30363d;
+      --blue: #58a6ff;
+      --orange: #f0883e;
+      --green: #3fb950;
+      --red: #da3633;
+      --err-bg: #2d1517;
+      --err-border: #da3633;
+      --spinner-track: #30363d;
+      --spinner-active: #58a6ff;
+    }
+    [data-theme="light"] {
+      --bg: #f6f8fa;
+      --card-bg: #ffffff;
+      --card-border: #d0d7de;
+      --text: #1f2328;
+      --text-muted: #656d76;
+      --text-dim: #8b949e;
+      --divider: #d8dee4;
+      --btn-bg: #f6f8fa;
+      --btn-border: #d0d7de;
+      --btn-text: #24292f;
+      --btn-hover: #eaeef2;
+      --blue: #0969da;
+      --orange: #bd5612;
+      --green: #1a7f37;
+      --red: #cf222e;
+      --err-bg: #ffebe9;
+      --err-border: #cf222e;
+      --spinner-track: #d0d7de;
+      --spinner-active: #0969da;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+      transition: background .25s, color .25s;
+    }
+    .top-bar {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .top-bar a, .theme-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--btn-text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .top-bar a:hover, .theme-btn:hover {
+      background: var(--btn-hover);
+    }
+    .theme-btn {
+      font-family: inherit;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 36px;
+      width: 100%;
+      max-width: 700px;
+      transition: background .25s, border-color .25s;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    .balance-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--divider);
+      font-size: 15px;
+    }
+    .balance-row:last-child { border-bottom: none; }
+    .balance-row .label {
+      color: var(--text-muted);
+      flex: 0 0 160px;
+    }
+    .balance-row .values {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      gap: 32px;
+      text-align: right;
+    }
+    .balance-row .values > span {
+      min-width: 100px;
+      font-weight: 600;
+    }
+    .currency-usd { color: var(--blue); }
+    .currency-rub { color: var(--orange); }
+    .remaining { font-size: 20px; }
+    .remaining.zero { color: var(--red); }
+    .remaining.ok { color: var(--green); }
+    .rate-row { color: var(--text-muted); font-size: 13px; padding-top: 8px; text-align: right; }
+    .progress-bar {
+      margin-top: 10px;
+      background: var(--divider);
+      border-radius: 10px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--blue));
+      border-radius: 10px;
+      transition: width 0.5s;
+    }
+    .error-msg {
+      color: var(--red);
+      background: var(--err-bg);
+      border: 1px solid var(--err-border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    .loading {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-muted);
+    }
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--spinner-track);
+      border-top-color: var(--spinner-active);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .refresh-btn {
+      margin-top: 20px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--btn-text);
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+      transition: background .15s;
+    }
+    .refresh-btn:hover { background: var(--btn-hover); }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <a href="/">← На главную</a>
+    <button class="theme-btn" id="themeToggle" onclick="toggleTheme()">☀️ Светлая</button>
+  </div>
+
+  <div class="card">
+    <h1>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+      </svg>
+      OpenRouter
+    </h1>
+    <div class="subtitle">Баланс и расходы</div>
+
+    <div id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>Загрузка...</div>
+      </div>
+    </div>
+
+    <button class="refresh-btn" onclick="loadAll()">Обновить</button>
+  </div>
+
+  <script>
+    function fmtRub(n) {
+      return n.toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' ₽';
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      const isLight = html.getAttribute('data-theme') === 'light';
+      html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+      btn.textContent = isLight ? '☀️ Светлая' : '🌙 Тёмная';
+      localStorage.setItem('or-theme', isLight ? 'dark' : 'light');
+    }
+
+    // restore saved theme
+    (function initTheme() {
+      const saved = localStorage.getItem('or-theme');
+      if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+        const btn = document.getElementById('themeToggle');
+        if (btn) btn.textContent = saved === 'light' ? '🌙 Тёмная' : '☀️ Светлая';
+      }
+    })();
+
+    async function loadAll() {
+      const content = document.getElementById('content');
+      content.innerHTML = '<div class="loading"><div class="spinner"></div><div>Загрузка...</div></div>';
+
+      let creditsData, expensesData;
+
+      try {
+        const [creditsResp, expensesResp] = await Promise.all([
+          fetch('/api/v1/openrouter/credits'),
+          fetch('api/v1/currency/usd-rub')
+        ]);
+        if (!creditsResp.ok) throw new Error(await creditsResp.text());
+        creditsData = (await creditsResp.json()).data || {};
+        if (expensesResp.ok) expensesData = await expensesResp.json();
+      } catch (e) {
+        content.innerHTML = `<div class="error-msg">Ошибка: ${e.message}</div>`;
+        return;
+      }
+
+      const totalCredits = creditsData.total_credits || 0;
+      const totalUsage = creditsData.total_usage || 0;
+      const remaining = totalCredits - totalUsage;
+      const hasRub = expensesData && expensesData.usd_rub_rate != null;
+
+      let remClass = 'remaining';
+      if (remaining <= 0) remClass += ' zero';
+      else if (remaining > 0) remClass += ' ok';
+
+      const pct = totalCredits > 0 ? Math.min(100, (totalUsage / totalCredits) * 100) : 0;
+
+      let html = '';
+
+      html += '<div class="balance-row">';
+      html += '  <span class="label">Всего начислено</span>';
+      html += '  <div class="values">';
+      html += `    <span class="currency-usd">${totalCredits.toFixed(2)} USD</span>`;
+      if (hasRub) html += `    <span class="currency-rub">${fmtRub(expensesData.total_credits_rub)}</span>`;
+      html += '  </div></div>';
+
+      html += '<div class="balance-row">';
+      html += '  <span class="label">Потрачено</span>';
+      html += '  <div class="values">';
+      html += `    <span class="currency-usd">${totalUsage.toFixed(2)} USD</span>`;
+      if (hasRub) html += `    <span class="currency-rub">${fmtRub(expensesData.total_usage_rub)}</span>`;
+      html += '  </div></div>';
+
+      html += '<div class="balance-row" style="border-bottom:2px solid var(--divider);padding-bottom:14px">';
+      html += '  <span class="label">Остаток</span>';
+      html += '  <div class="values">';
+      html += `    <span class="${remClass} currency-usd">${remaining.toFixed(2)} USD</span>`;
+      if (hasRub) html += `    <span class="${remClass} currency-rub">${fmtRub(expensesData.remaining_rub)}</span>`;
+      html += '  </div></div>';
+
+      html += `<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+
+      if (hasRub) {
+        html += `<div class="rate-row">Курс ЦБ РФ: ${expensesData.usd_rub_rate.toFixed(2)} ₽ за 1 USD</div>`;
+      }
+
+      content.innerHTML = html;
+    }
+
+    loadAll();
+    setInterval(loadAll, 60000);
+  </script>
+</body>
+</html>
