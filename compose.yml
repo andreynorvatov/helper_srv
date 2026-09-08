@@ -1,19 +1,19 @@
 services:
   or-balance:
-    build: .
-    env_file:св 
+    image: helper:latest
+    env_file:
       - .env
     restart: always
-    networks:
-      - default
-      - or-net
-    volumes:
-      - or-data:/data
+#     networks:
+#       - default
+#       - or-net
+#     volumes:
+#       - or-data:/data
 
-volumes:
-  or-data:
+# volumes:
+#   or-data:
 
-networks:
-  or-net:
-    name: or-net
-    external: true
+# networks:
+#   or-net:
+#     name: or-net
+#     external: true
