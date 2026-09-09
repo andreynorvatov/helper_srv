@@ -41,8 +41,8 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           if [ -z "$OPENROUTER_API_KEY" ]; then
-            echo "::error::Secret OPENROUTER_API_KEY is empty or not set in GitHub Actions secrets"
-            exit 1
+            echo "::warning::Secret OPENROUTER_API_KEY is empty or not set in GitHub Actions secrets — skipping .env creation"
+            exit 0
           fi
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
             "cd '$DEPLOY_PATH' && printf 'OPENROUTER_API_KEY=%s\n' '$OPENROUTER_API_KEY' > .env"
@@ -50,4 +50,4 @@ jobs:
       - name: Deploy via SSH
         run: |
           ssh -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ${{ secrets.DEPLOY_PATH }} && docker compose build --no-cache && docker compose up -d"
+            "cd ${{ secrets.DEPLOY_PATH }} && docker compose down && docker compose build --no-cache && docker compose up -d"
