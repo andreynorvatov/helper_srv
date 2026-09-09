@@ -1,15 +1,6 @@
-services:
-  helper_srv:
-    build: .
-    image: helper:latest
-    env_file:
-      - .env
-    volumes:
-      - ./.env:/app/.env
-    networks:
-      - nginx-net
-    restart: always
-    command: uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+include:
+  - helper_srv/compose.yml
+  - nginx/compose.yml
 
 networks:
   nginx-net:

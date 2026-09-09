@@ -30,7 +30,7 @@ help:
 	@echo "  make down-nginx  - Остановить nginx"
 
 build:
-	docker build -t $(IMAGE_FULL) .
+	docker build -t $(IMAGE_FULL) ./helper_srv
 
 save: build
 	docker save -o $(TAR_FILE) $(IMAGE_FULL)
@@ -48,7 +48,7 @@ load: copy
 # 	ssh $(SERVER_USER)@$(SERVER_HOST) "docker run -d -p $(DOCKER_PORT):$(DOCKER_PORT) --name $(IMAGE_NAME) $(IMAGE_FULL)"
 # 	@echo "Контейнер запущен на порту $(DOCKER_PORT)"
 run:
-	uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+	cd helper_srv && uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 
 # Внешняя сеть для nginx + helper_srv
 network-up:
