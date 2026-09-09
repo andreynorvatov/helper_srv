@@ -1,24 +1,12 @@
 services:
-  or-balance:
+  helper_srv:
     build: .
     image: helper:latest
     env_file:
       - .env
     ports:
-      - "8000:8000"
+      - "${PORT:-8000}:${PORT:-8000}"
     volumes:
       - ./.env:/app/.env
     restart: always
-#     networks:
-#       - default
-#       - or-net
-#     volumes:
-#       - or-data:/data
-
-# volumes:
-#   or-data:
-
-# networks:
-#   or-net:
-#     name: or-net
-#     external: true
+    command: uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
