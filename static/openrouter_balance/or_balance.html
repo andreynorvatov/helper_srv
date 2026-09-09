@@ -245,16 +245,16 @@
       const content = document.getElementById('content');
       content.innerHTML = '<div class="loading"><div class="spinner"></div><div>Загрузка...</div></div>';
 
-      let creditsData, expensesData;
+      let creditsData, rateData;
 
       try {
-        const [creditsResp, expensesResp] = await Promise.all([
+        const [creditsResp, rateResp] = await Promise.all([
           fetch('/api/v1/openrouter/credits'),
-          fetch('api/v1/currency/usd-rub')
+          fetch('/api/v1/currency/usd-rub')
         ]);
         if (!creditsResp.ok) throw new Error(await creditsResp.text());
         creditsData = (await creditsResp.json()).data || {};
-        if (expensesResp.ok) expensesData = await expensesResp.json();
+        if (rateResp.ok) rateData = await rateResp.json();
       } catch (e) {
         content.innerHTML = `<div class="error-msg">Ошибка: ${e.message}</div>`;
         return;
@@ -263,7 +263,8 @@
       const totalCredits = creditsData.total_credits || 0;
       const totalUsage = creditsData.total_usage || 0;
       const remaining = totalCredits - totalUsage;
-      const hasRub = expensesData && expensesData.usd_rub_rate != null;
+      const usdRubRate = rateData && rateData.rate != null ? rateData.rate : null;
+      const hasRub = usdRubRate != null;
 
       let remClass = 'remaining';
       if (remaining <= 0) remClass += ' zero';
@@ -277,27 +278,27 @@
       html += '  <span class="label">Всего начислено</span>';
       html += '  <div class="values">';
       html += `    <span class="currency-usd">${totalCredits.toFixed(2)} USD</span>`;
-      if (hasRub) html += `    <span class="currency-rub">${fmtRub(expensesData.total_credits_rub)}</span>`;
+      if (hasRub) html += `    <span class="currency-rub">${fmtRub(totalCredits * usdRubRate)}</span>`;
       html += '  </div></div>';
 
       html += '<div class="balance-row">';
       html += '  <span class="label">Потрачено</span>';
       html += '  <div class="values">';
       html += `    <span class="currency-usd">${totalUsage.toFixed(2)} USD</span>`;
-      if (hasRub) html += `    <span class="currency-rub">${fmtRub(expensesData.total_usage_rub)}</span>`;
+      if (hasRub) html += `    <span class="currency-rub">${fmtRub(totalUsage * usdRubRate)}</span>`;
       html += '  </div></div>';
 
       html += '<div class="balance-row" style="border-bottom:2px solid var(--divider);padding-bottom:14px">';
       html += '  <span class="label">Остаток</span>';
       html += '  <div class="values">';
       html += `    <span class="${remClass} currency-usd">${remaining.toFixed(2)} USD</span>`;
-      if (hasRub) html += `    <span class="${remClass} currency-rub">${fmtRub(expensesData.remaining_rub)}</span>`;
+      if (hasRub) html += `    <span class="${remClass} currency-rub">${fmtRub(remaining * usdRubRate)}</span>`;
       html += '  </div></div>';
 
       html += `<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
 
       if (hasRub) {
-        html += `<div class="rate-row">Курс ЦБ РФ: ${expensesData.usd_rub_rate.toFixed(2)} ₽ за 1 USD</div>`;
+        html += `<div class="rate-row">Курс ЦБ РФ: ${usdRubRate.toFixed(2)} ₽ за 1 USD</div>`;
       }
 
       content.innerHTML = html;
