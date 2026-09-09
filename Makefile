@@ -12,18 +12,22 @@ SERVER_PATH := ~/test_srv
 # Docker опции
 DOCKER_PORT := 8000
 
-.PHONY: help build save copy load run clean all
+.PHONY: help build save copy load run clean all network-up network-down up-nginx down-nginx
 
 help:
 	@echo "Доступные команды:"
-	@echo "  make build    - Собрать Docker образ"
-	@echo "  make save     - Сохранить образ в tar файл"
-	@echo "  make copy     - Скопировать tar файл на сервер"
-	@echo "  make load     - Загрузить образ на сервере"
-# 	@echo "  make run      - Запустить контейнер на сервере"
-	@echo "  make all      - Выполнить все шаги последовательно"
-	@echo "  make clean    - Удалить tar файл локально"
-	@echo "  make run    - Удалить tar файл локально"
+	@echo "  make build       - Собрать Docker образ"
+	@echo "  make save        - Сохранить образ в tar файл"
+	@echo "  make copy        - Скопировать tar файл на сервер"
+	@echo "  make load        - Загрузить образ на сервере"
+	@echo "  make all         - Выполнить все шаги последовательно"
+	@echo "  make clean       - Удалить tar файл локально"
+	@echo "  make run         - Запустить dev-сервер локально"
+	@echo ""
+	@echo "  make network-up  - Создать внешнюю сеть nginx-net"
+	@echo "  make network-down- Удалить внешнюю сеть nginx-net"
+	@echo "  make up-nginx    - Запустить nginx (из nginx/)"
+	@echo "  make down-nginx  - Остановить nginx"
 
 build:
 	docker build -t $(IMAGE_FULL) .
@@ -44,7 +48,21 @@ load: copy
 # 	ssh $(SERVER_USER)@$(SERVER_HOST) "docker run -d -p $(DOCKER_PORT):$(DOCKER_PORT) --name $(IMAGE_NAME) $(IMAGE_FULL)"
 # 	@echo "Контейнер запущен на порту $(DOCKER_PORT)"
 run:
- uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+	uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
+# Внешняя сеть для nginx + helper_srv
+network-up:
+	docker network create nginx-net 2>/dev/null || true
+
+network-down:
+	docker network rm nginx-net 2>/dev/null || true
+
+# Nginx
+up-nginx: network-up
+	docker compose -f nginx/compose.yml up -d
+
+down-nginx:
+	docker compose -f nginx/compose.yml down
 
 # Выполнить все шаги
 all: run

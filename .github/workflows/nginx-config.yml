@@ -1,0 +1,36 @@
+name: Nginx Config Update
+
+on:
+  push:
+    paths:
+      - 'nginx/nginx.conf'
+      - 'nginx/conf.d/*.conf'
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  update-nginx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          ssh-keyscan -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Rsync nginx configs to server
+        run: |
+          rsync -avz --delete \
+            -e "ssh -p ${{ secrets.SSH_PORT || '22' }}" \
+            ./nginx/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/nginx/
+
+      - name: Restart nginx container
+        run: |
+          ssh -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ secrets.DEPLOY_PATH }}/nginx && \
+             docker compose restart nginx"
