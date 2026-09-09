@@ -1,0 +1,14 @@
+.git
+.github
+.env
+.env.*
+__pycache__/
+*.pyc
+*.pyo
+plans/
+tests/
+Dockerfile
+compose.yml
+Makefile
+.venv/
+venv/

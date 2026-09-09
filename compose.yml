@@ -1,7 +1,0 @@
-include:
-  - helper_srv/compose.yml
-  - nginx/compose.yml
-
-networks:
-  nginx-net:
-    external: true

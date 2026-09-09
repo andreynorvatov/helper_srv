@@ -3,9 +3,9 @@ services:
     build: .
     image: helper:latest
     env_file:
-      - ../.env
+      - ./.env
     volumes:
-      - ../.env:/app/.env
+      - ./.env:/app/.env
     networks:
       - nginx-net
     restart: always

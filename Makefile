@@ -7,7 +7,7 @@ TAR_FILE := $(IMAGE_NAME).tar
 # Данные сервера
 SERVER_USER := admin
 SERVER_HOST := amzng
-SERVER_PATH := ~/test_srv
+SERVER_PATH := ~/helper_srv
 
 # Docker опции
 DOCKER_PORT := 8000
@@ -63,6 +63,13 @@ up-nginx: network-up
 
 down-nginx:
 	docker compose -f nginx/compose.yml down
+
+# Helper
+up-helper: network-up
+	docker compose -f helper_srv/compose.yml up -d
+
+down-helper:
+	docker compose -f helper_srv/compose.yml down
 
 # Выполнить все шаги
 all: run

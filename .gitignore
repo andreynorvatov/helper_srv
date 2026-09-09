@@ -43,6 +43,7 @@ pip-delete-this-directory.txt
 # Environment variables
 .env
 .env.*
+helper_srv/.env
 !.env.example
 !.env.template
 
@@ -112,7 +113,6 @@ static/uploads/
 # Docker
 .docker/
 docker-compose.override.yml
-*.dockerignore
 
 # CI/CD
 *.yml.bak
