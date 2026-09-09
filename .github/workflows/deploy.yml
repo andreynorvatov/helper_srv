@@ -28,17 +28,24 @@ jobs:
 
       - name: Rsync code to server
         run: |
-          rsync -avz --delete --exclude '.git' --exclude '.github' \
+          rsync -avz --delete --exclude '.git' --exclude '.github' --exclude '.env' \
             -e "ssh -p ${{ secrets.SSH_PORT || '22' }}" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
 
       - name: Create .env file on server
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          ssh -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ${{ secrets.DEPLOY_PATH }} && \
-             printf '%s\n' \
-               'OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}' \
-               > .env"
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "::error::Secret OPENROUTER_API_KEY is empty or not set in GitHub Actions secrets"
+            exit 1
+          fi
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "cd '$DEPLOY_PATH' && printf 'OPENROUTER_API_KEY=%s\n' '$OPENROUTER_API_KEY' > .env"
 
       - name: Deploy via SSH
         run: |
