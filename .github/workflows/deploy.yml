@@ -23,14 +23,14 @@ jobs:
       # - name: Clean server directory (keep .env only)
       #   run: |
       #     ssh -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-      #       "cd ${{ secrets.DEPLOY_PATH }} && \
+      #       "cd ${{ secrets.DEPLOY_PATH }}/test_srv && \
       #        find . -maxdepth 1 ! -name '.env' ! -name '.' -exec rm -rf {} +"
 
       - name: Rsync code to server
         run: |
           rsync -avz --delete --exclude '.git' --exclude '.github' --exclude '.env' \
             -e "ssh -p ${{ secrets.SSH_PORT || '22' }}" \
-            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/test_srv
 
       - name: Create .env file on server
         env:
@@ -45,12 +45,12 @@ jobs:
             exit 0
           fi
           ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
-            "cd '$DEPLOY_PATH' && printf 'OPENROUTER_API_KEY=%s\n' '$OPENROUTER_API_KEY' > .env"
+            "cd '$DEPLOY_PATH/test_srv' && printf 'OPENROUTER_API_KEY=%s\n' '$OPENROUTER_API_KEY' > .env"
 
       - name: Deploy helper_srv via SSH
         run: |
           ssh -p ${{ secrets.SSH_PORT || '22' }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd ${{ secrets.DEPLOY_PATH }} && \
+            "cd ${{ secrets.DEPLOY_PATH }}/test_srv && \
              docker compose down || true && \
              docker compose build --no-cache && \
              docker compose up -d"
